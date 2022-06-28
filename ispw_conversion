@@ -1,0 +1,56 @@
+Sub Convert()
+'This subroutine converts selected multiple rows into one line.
+'Written for the exported contents from ISPW. The contents are split by "=".
+Dim lRow As Long, lCol As Long, i As Long, j As Long, SBar As Boolean
+Dim SourceWorksheet As Worksheet, TargetWorksheet As Worksheet
+
+With Application
+  SBar = .DisplayStatusBar
+  .DisplayStatusBar = True
+  .ScreenUpdating = False
+  .Calculation = xlManual
+End With
+Set SourceWorksheet = ThisWorkbook.Worksheets("Sheet4")
+Set TargetWorksheet = ThisWorkbook.Worksheets("Sheet2")
+TargetWorksheet.UsedRange.Clear
+
+'Populate headers
+TargetWorksheet.Cells(1, 1).Value = "Envrionment"
+TargetWorksheet.Cells(1, 2).Value = "Sub-env"
+TargetWorksheet.Cells(1, 3).Value = "Type"
+TargetWorksheet.Cells(1, 4).Value = "Domain"
+TargetWorksheet.Cells(1, 5).Value = "Dataset Name"
+'Skip the header row
+j = 2
+
+'Showing the status bar message
+Application.StatusBar = "Checking through..."
+
+With SourceWorksheet.UsedRange
+  lRow = .Cells.SpecialCells(xlCellTypeLastCell).Row
+  'lCol = .Cells.SpecialCells(xlCellTypeLastCell).Column
+  For i = 1 To lRow Step 1
+    If Trim(SourceWorksheet.Cells(i, 1).Value) = "DPENV" Then
+      TargetWorksheet.Cells(j, 1).Value = SourceWorksheet.Cells(i, 2).Value
+    ElseIf Trim(SourceWorksheet.Cells(i, 1).Value) = "SUBENV" Then
+      TargetWorksheet.Cells(j, 2).Value = SourceWorksheet.Cells(i, 2).Value
+    ElseIf Trim(SourceWorksheet.Cells(i, 1).Value) = "DPTYPE" Then
+      TargetWorksheet.Cells(j, 3).Value = SourceWorksheet.Cells(i, 2).Value
+    ElseIf Trim(SourceWorksheet.Cells(i, 1).Value) = "DPDOMAIN" Then
+      TargetWorksheet.Cells(j, 4).Value = SourceWorksheet.Cells(i, 2).Value
+    ElseIf Trim(SourceWorksheet.Cells(i, 1).Value) = "STORNAME" Then
+      TargetWorksheet.Cells(j, 5).Value = SourceWorksheet.Cells(i, 2).Value
+      j = j + 1
+    End If
+  Next
+End With
+With Application
+  .Calculation = xlAutomatic
+  .StatusBar = False
+  .DisplayStatusBar = SBar
+  .ScreenUpdating = True
+End With
+
+MsgBox "Checked " & lRow & " rows and populated " & j - 2 & " rows."
+
+End Sub
